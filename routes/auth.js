@@ -7,7 +7,9 @@ const Patient = require('../models/Patient');
 const { protect } = require('../middleware/auth');
 
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is not set');
+  return jwt.sign({ id }, secret, { expiresIn: process.env.JWT_EXPIRE || '7d' });
 };
 
 // @POST /api/auth/register
