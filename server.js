@@ -41,7 +41,17 @@ async function connectDB() {
   console.log('✅ MongoDB Connected');
   return cachedConn;
 }
-connectDB().catch(err => console.error('❌ MongoDB Error:', err));
+
+// Middleware: ensure DB is connected before every request (critical for serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('❌ MongoDB connection failed:', err.message);
+    res.status(500).json({ success: false, message: 'Database connection failed: ' + err.message });
+  }
+});
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/auth',         require('./routes/auth'));
